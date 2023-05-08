@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+<h3>{{ message }}</h3>
+
+<label>Enter prompt for testing purposes here: </label>
+<form method="post" action="/api/ChatGPTWebAPITester">
+    <textarea name="prompt" rows="5" cols="50"></textarea><br><br>
+    <input type="submit" value="Submit">
+</form>
+    {% if response %}
+<h2>Response:</h2>
+<pre>{{ response.message}}</pre>
+<h2>Response in JSON:</h2>
+<pre>{{ response}}</pre>
+<h2>Query:</h2>
+<pre>{{ response.query}}</pre>
+
+    {% endif %}
+
+{% endblock %}

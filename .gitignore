@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/obj/Any CPU/Debug
+/SpinnrAIWebService/__pycache__
+/.vs
+/env
+/SpinnrAIWebService/apiconfig
+/SpinnrAIWebService.pyproj
+/SpinnrAIWebService.pyproj.user
+/SpinnrAIWebService.sln
