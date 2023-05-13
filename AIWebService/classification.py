@@ -14,20 +14,33 @@ from sklearn.model_selection import train_test_split
 matcher = Matcher(nlp.vocab)
 
 # Define a simple pattern for our custom entity of "interests"
-pattern = [{"LOWER": {"IN": ["hiking", "camping", "cooking", "technology", "ai", "painting", "writing", "reading", "meditating", "backpacking", "jogging"]}}]
-
+pattern = [{"LOWER": {"IN": ["cutting", "sawing", "bending", "grinding", "beveling", "shaping", "forming", "pressing", "sanding", "drilling", "threading"]}}]
 # Add the pattern to the matcher
-matcher.add("INTERESTS", [pattern])
+matcher.add("FUNCTION", [pattern])
+
+
+# Load the product names from the CSV file
+df = pd.read_csv('product_names.csv')
+# Convert the DataFrame to a list
+product_names = df.iloc[:, 0].tolist()
+# Convert the product names to lowercase for matching
+product_names = [name.lower() for name in product_names]
+# Define the pattern for the matcher
+pattern = [{"LOWER": {"IN": product_names}}]
+# Add the pattern to the matcher
+matcher.add("PRODUCT_NAME", [pattern])
+
 
 def extract_entities(text):
     doc = nlp(text)
     entities = {}
     for ent in doc.ents:
+        print(ent.label_, ent.text)
         entities[ent.label_] = ent.text
     matches = matcher(doc)
     if matches:
         _, start, end = matches[0]
-        entities["INTERESTS"] = doc[start:end].text
+        entities["FUNCTION"] = doc[start:end].text
 
     return entities
 
@@ -38,7 +51,7 @@ def generate_query(intent, entities):
         location = entities.get("GPE") # GPE is geopolitical entity
         query = f"SELECT * FROM events WHERE location = '{location}'"
     elif intent == "people":
-        interests = entities.get("INTERESTS") # This is our custom entity "interests"
+        interests = entities.get("FUNCTION") # This is our custom entity "FUNCTION"
         query = f"SELECT * FROM people WHERE interests = '{interests}'"
     else:
         query = ""
@@ -89,7 +102,7 @@ def query_intent(text):
     entities = extract_entities(text)
     query = generate_query(intent, entities)
     # results = execute_query(query) # ONCE WE HOOK UP THE DB THIS IS WHERE WE'LL EXECUTE THE QUERY
-    return query
+    return intent, entities, query
 
 
 # Note: GPE is geopolitical entity

@@ -1,5 +1,5 @@
 #helpers.py
-from SpinnrAIWebService import config
+from AIWebService import config
 from google.cloud import videointelligence
 import re
 import io

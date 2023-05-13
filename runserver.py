@@ -3,7 +3,7 @@ This script runs the SpinnrAIWebService application using a development server.
 """
 
 from os import environ
-from SpinnrAIWebService import app
+from AIWebService import app
 
 if __name__ == '__main__':
     # HOST = environ.get('SERVER_HOST', 'localhost')

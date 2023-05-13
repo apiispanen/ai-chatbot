@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 from datetime import datetime
 from flask import render_template, jsonify, request
-from SpinnrAIWebService import app, apiconfig, config, helpers, classification 
+from AIWebService import app, apiconfig, config, helpers, classification 
 import openai, json
 
 @app.route('/')
@@ -20,27 +20,24 @@ def chatGPTWebAPITester():
     try:
         if request.method == 'POST':
             prompt = request.form['prompt']
-            if "spinnr" in prompt.lower():
-                return jsonify({"message": config.spinnrQuestionMessage})
-            elif "spinny" in prompt.lower():
-                prompt = prompt.replace("spinny", "")
             prompt = helpers.AddEmojiRequestToPrompt(prompt)
-            completions = openai.Completion.create(
-                engine=config.engine,
-                prompt=prompt,
-                max_tokens=config.max_tokens,
-                top_p=config.top_p
-            )
-            message = completions.choices[0].text.strip()
-            message = helpers.remove_extra_emojis(message)
-            query = classification.query_intent(prompt)
-            print("query: ", query)
+            # # completions = openai.Completion.create(
+            # #     engine=config.engine,
+            # #     prompt=prompt,
+            # #     max_tokens=config.max_tokens,
+            # #     top_p=config.top_p
+            # # )
+            # # message = completions.choices[0].text.strip()
+            # # message = helpers.remove_extra_emojis(message)
+            message = "Dolphin AI Results:"
+            ( intent, entities, query) = classification.query_intent(prompt)
+            print("query: ", query, "intent: ", intent, "entities: ", entities)
 
             return render_template('ChatGPTWebAPITester.html',
                 title='ChatGPT Tester',
                 year=datetime.now().year,
                 message='Use /api/ChatGPTWebAPI for actual API calls.',
-                response={"Hello": message, "query": query})
+                response={"Hello": message, "query": query, "intent": intent, "entities": entities})
         else:
             return render_template('ChatGPTWebAPITester.html',
                 title='ChatGPT Tester',

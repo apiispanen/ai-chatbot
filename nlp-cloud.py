@@ -1,5 +1,5 @@
 import nlpcloud
-from SpinnrAIWebService import app, apiconfig, config, helpers
+from AIWebService import app, apiconfig, config, helpers
 
 
 client = nlpcloud.Client("fast-gpt-j", apiconfig.NLP_KEY, True)

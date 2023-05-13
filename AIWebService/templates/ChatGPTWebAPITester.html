@@ -11,12 +11,16 @@
     <input type="submit" value="Submit">
 </form>
     {% if response %}
-<h2>Response:</h2>
-<pre>{{ response.message}}</pre>
 <h2>Response in JSON:</h2>
 <pre>{{ response}}</pre>
+<h2>Intent:</h2>
+<pre>{{ response.intent}}</pre>
+<h2>Entities:</h2>
+<pre>{{ response.entities}}</pre>
 <h2>Query:</h2>
 <pre>{{ response.query}}</pre>
+<h2>Response Message:</h2>
+<pre>{{ response.message}}</pre>
 
     {% endif %}
 
