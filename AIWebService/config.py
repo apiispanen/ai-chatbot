@@ -12,4 +12,4 @@ timeOutErrorMessage = "Got stuck in a wormhole 💫 The space-time continuum can
 anyOtherExceptionErrorMessage = "Time-space glitch, be back in a jiffy! 🌌🚀";
 
 #Emoji Request
-appendEmojiRequest = ' (give me the long answer and add emojis to answer context)'
+appendEmojiRequest = ''

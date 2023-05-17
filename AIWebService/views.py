@@ -30,21 +30,31 @@ def chatGPTWebAPITester():
             # # message = completions.choices[0].text.strip()
             # # message = helpers.remove_extra_emojis(message)
             message = "Dolphin AI Results:"
+
             ( intent, entities, query) = classification.query_intent(prompt)
+            print(query)
+            print(prompt.lower())
+            # if prompt.lower() == "what is the best manual grinder for metal?":
+            #     query = "The best manual grinder for metal is the Timesavers Model MGV Grinder. You can find more information here: https://directmachines.com/timesavers%20model%20mgv%20grinder.html"
+            # if prompt.lower() == "how much is a powermatic saw?":
+            #     query = "The powermatic 31A belt/disc sander is $2099, learn more here: https://directmachines.com/powermatic-31a-belt-disc-sander-1-5hp-1ph-115-230v.html"
+            # if prompt.lower() == "would an ironworker be able to punch metal?":
+            #     query = "Yes! Ironworkers would be able to punch metal - try Piranha ironworkers here: https://directmachines.com/ironworkers/piranha-ironworkers.html"
+
             print("query: ", query, "intent: ", intent, "entities: ", entities)
 
             return render_template('ChatGPTWebAPITester.html',
-                title='ChatGPT Tester',
+                title='Direct Machines AI Chatbot Tester',
                 year=datetime.now().year,
                 message='Use /api/ChatGPTWebAPI for actual API calls.',
                 response={"Hello": message, "query": query, "intent": intent, "entities": entities})
         else:
             return render_template('ChatGPTWebAPITester.html',
-                title='ChatGPT Tester',
+                title='Direct Machines AI Chatbot Tester',
                 year=datetime.now().year,
                 message='Use /api/ChatGPTWebAPI for actual API calls.')
     
-    except openai.exceptions.OpenAIError as e:
+    except openai.error as e:
         # Check if the exception was due to a timeout
         if "timeout" in str(e).lower():
             return jsonify({"message": config.timeOutErrorMessage})

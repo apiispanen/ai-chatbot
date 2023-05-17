@@ -18,6 +18,10 @@ pattern = [{"LOWER": {"IN": ["cutting", "sawing", "bending", "grinding", "beveli
 # Add the pattern to the matcher
 matcher.add("FUNCTION", [pattern])
 
+# Define a simple pattern for our custom entity of "interests"
+pattern = [{"LOWER": {"IN": ["metal", "wood", "aluminum", "iron", "water", "sand", "steel", "copper", "rust", "slag", "carbon fiber"]}}]
+# Add the pattern to the matcher
+matcher.add("MATERIAL", [pattern])
 
 # Load the product names from the CSV file
 df = pd.read_csv('product_names.csv')
@@ -31,6 +35,18 @@ pattern = [{"LOWER": {"IN": product_names}}]
 matcher.add("PRODUCT_NAME", [pattern])
 
 
+# Load the product names from the CSV file
+df = pd.read_csv('mfgs.csv')
+# Convert the DataFrame to a list
+mfg_names = df.iloc[:, 0].tolist()
+# Convert the product names to lowercase for matching
+mfg_names = [mfg.lower() for mfg in mfg_names]
+# Define the pattern for the matcher
+pattern = [{"LOWER": {"IN": mfg_names}}]
+# Add the pattern to the matcher
+matcher.add("MFG", [pattern])
+
+
 def extract_entities(text):
     doc = nlp(text)
     entities = {}
@@ -38,10 +54,10 @@ def extract_entities(text):
         print(ent.label_, ent.text)
         entities[ent.label_] = ent.text
     matches = matcher(doc)
-    if matches:
-        _, start, end = matches[0]
-        entities["FUNCTION"] = doc[start:end].text
-
+    for match_id, start, end in matches:
+        string_id = nlp.vocab.strings[match_id]  # get string representation
+        print("MATCHES", string_id, doc[start:end].text)
+        entities[string_id] = doc[start:end].text
     return entities
 
 # RETURNS THE SQL QUERY BASED ON THE INTENT AND ENTITIES
