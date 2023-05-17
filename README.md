@@ -1,4 +1,4 @@
-# Spinny AI
+# Dolphin AI
 
 
 
