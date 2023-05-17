@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 from datetime import datetime
 from flask import render_template, jsonify, request
-from AIWebService import app, apiconfig, config, helpers, classification 
+from AIWebService import app, apiconfigd, config, helpers, classification 
 import openai, json
 
 @app.route('/')
