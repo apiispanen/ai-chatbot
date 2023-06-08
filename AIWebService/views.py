@@ -67,10 +67,7 @@ def ChatGPTWebAPI():
     try:
         print("ChatGPTWebAPI request.data: ", request.data)
         prompt = json.loads(request.data)['prompt']
-        if "spinnr" in prompt.lower():
-            return jsonify({"message": config.spinnrQuestionMessage})
-        elif "spinny" in prompt.lower():
-            prompt = prompt.replace("spinny", "")
+
         prompt = helpers.AddEmojiRequestToPrompt(prompt)
         completions = openai.Completion.create(
             engine=config.engine,
@@ -131,44 +128,27 @@ def ChatGPTWebAPI():
 #     except Exception as e:
 #         return jsonify({"message": config.anyOtherExceptionErrorMessage, "query":"Error, see logs for details."})
 
-
-@app.route('/api/VideoIntelligenceAPITester',  methods=['GET', 'POST'])
-def VideoIntelligenceAPITester():
-    try:
-        if request.method == 'POST':
-            path = request.form['path']
-            content_analysis_dict = helpers.analyze_explicit_content(path)
-            return render_template('VideoIntelligenceAPITester.html',
-                title='Video Intelligence API Tester',
-                year=datetime.now().year,
-                message='Use /api/VideoIntelligenceAPI for actual API calls.',
-                response=content_analysis_dict)
-        else:
-            return render_template('VideoIntelligenceAPITester.html',
-                title='Video Intelligence API Tester',
-                year=datetime.now().year,
-                message='Use /api/VideoIntelligenceAPI for actual API calls.')
-    except Exception as e:
-        # For any other exception
-        return jsonify({"message": config.anyOtherExceptionErrorMessage})
     
 @socketio.on('message')
 def handle_message(data):
     prompt = data['prompt']
     temperature = config.top_p
     messages = [{"role": "user", "content": prompt}]
+
     result_dict = classification.query_intent(prompt)
+    intent, entities, query = result_dict
     # NOW RUN THE PROMPT:
-  
-    response = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo',
-        messages=messages,
-        temperature=temperature,
-        stream=True  # set stream=True
-    )
-    for chunk in response:
-        chunk_message = chunk['choices'][0]['delta']  # extract the message
-        socketio.emit('response', {"message": chunk_message})  # send the chunk message and result_dict to the client
+    print("REsult dict: ", result_dict)
+    socketio.emit('response', {"message": f"Intent: {intent},\nEntities: {entities} \nQuery: {query}"}) 
+    # response = openai.ChatCompletion.create(
+    #     model='gpt-3.5-turbo',
+    #     messages=messages,
+    #     temperature=temperature,
+    #     stream=True  # set stream=True
+    # )
+    # for chunk in response:
+    #     chunk_message = chunk['choices'][0]['delta']  # extract the message
+    #     socketio.emit('response', {"message": chunk_message})  # send the chunk message and result_dict to the client
 
 
 # from flask import Flask, request, jsonify

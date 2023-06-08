@@ -10,6 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
+from dm_connect import execute_query
 
 matcher = Matcher(nlp.vocab)
 
@@ -63,16 +64,41 @@ def extract_entities(text):
 # RETURNS THE SQL QUERY BASED ON THE INTENT AND ENTITIES
 def generate_query(intent, entities):
     intent = intent.lower()
-    if intent == "events":
-        location = entities.get("GPE") # GPE is geopolitical entity
-        query = f"SELECT * FROM events WHERE location = '{location}'"
-    elif intent == "people":
-        interests = entities.get("FUNCTION") # This is our custom entity "FUNCTION"
-        query = f"SELECT * FROM people WHERE interests = '{interests}'"
-    else:
-        query = ""
-    return query
+    
+    
+    intent_table_mapping = {
+    "delivery_installation": "delivery_installation_table",
+    "price_inquiry": "catalog_product_entity_decimal",
+    "discount_inquiry": "salesrule_",
+    "financing_inquiry": "financing_inquiry_table",
+        "product_inquiry": "catalog_product_entity",
+    "support_maintenance": "support_maintenance_table",
+        "technical_specifications": "eav_attribute", 
+    "warranty_info": "warranty_info_table",
+    }   
 
+    if intent not in intent_table_mapping:
+        print("Invalid intent or intent not in mapping!")
+        return
+
+    table_name = intent_table_mapping[intent]
+
+
+    where_clause = ""
+    for entity, value in entities.items():
+        if entity == "PRODUCT_NAME":
+            # Use full-text search for product names
+            where_clause += f" MATCH(product_name) AGAINST('{value}') AND"
+        else:
+            # For other entities, just use a simple equals comparison
+            where_clause += f" {entity} = '{value}' AND"
+            
+    where_clause = where_clause.rstrip(" AND")  # remove trailing " AND"
+
+    # Construct the SQL query
+    query = f"SELECT * FROM {table_name} WHERE{where_clause}"
+    
+    return query
 
 # TIME FOR SOME DATA TRAINING   
 data = pd.read_csv("intent_data.csv")
@@ -117,7 +143,7 @@ def query_intent(text):
     intent = predict_intent(text) # Can be done with the NLP cloud API
     entities = extract_entities(text)
     query = generate_query(intent, entities)
-    # results = execute_query(query) # ONCE WE HOOK UP THE DB THIS IS WHERE WE'LL EXECUTE THE QUERY
+    results = execute_query(query) # ONCE WE HOOK UP THE DB THIS IS WHERE WE'LL EXECUTE THE QUERY
     return intent, entities, query
 
 

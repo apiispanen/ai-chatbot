@@ -128,6 +128,11 @@ def get_product_by_name_or_sku(search_term, cursor=cursor):
 
     return product
 
+def execute_query(sql, cursor=cursor):
+    print("Executing query: " + sql)
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
 
 # EXTRACT WARRANTY INFO
 # BY MFG
