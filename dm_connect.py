@@ -89,4 +89,57 @@ def get_all_products(cursor):
             writer.writerow([row[0]])  # Adjusted to work with tuple
 
 
-get_all_products(cursor)
+def get_product_by_name_or_sku(search_term, cursor=cursor):
+    # Create a new cursor that returns results as a dictionary
+    dict_cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    # Get attribute_id for 'name'
+    sql = """
+    SELECT attribute_id 
+    FROM mg6t_eav_attribute 
+    WHERE attribute_code = 'name' 
+    AND entity_type_id = (SELECT entity_type_id 
+                          FROM mg6t_eav_entity_type 
+                          WHERE entity_type_code = 'catalog_product')
+    """
+    dict_cursor.execute(sql)
+    result = dict_cursor.fetchone()
+    attribute_id = result['attribute_id']  # Adjusted to work with dictionary
+
+    # Search for products by name or SKU
+    sql = f"""
+    SELECT e.*, u.request_path as url 
+    FROM mg6t_catalog_product_entity as e
+    LEFT JOIN mg6t_url_rewrite as u ON e.entity_id = u.entity_id
+    WHERE e.entity_id IN (
+        SELECT entity_id 
+        FROM mg6t_catalog_product_entity_varchar 
+        WHERE attribute_id = {attribute_id} 
+        AND value LIKE '%{search_term}%'
+    ) OR sku LIKE '%{search_term}%'
+    ORDER BY sku 
+    LIMIT 1
+    """
+    dict_cursor.execute(sql)
+    product = dict_cursor.fetchone()
+
+    # Close the dictionary cursor
+    dict_cursor.close()
+
+    return product
+
+
+# EXTRACT WARRANTY INFO
+# BY MFG
+# IF NO MFG:
+    # WHAT MFG? 
+    # CHECK_WARRANTY (MFG_NAME)
+# TECHNICAL PRODUCT SPECS
+    # IF NO PRODUCT
+    # WHAT SKU NUMBER?
+    # CHECK PRODUCT SPECS (SKU, PRODUCT_NAME) 
+
+
+# get_all_products(cursor)
+
+# print("https://directmachines.com/"+str(get_product_by_name_or_sku("doall")['url']))
